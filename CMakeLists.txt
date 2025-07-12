@@ -19,7 +19,7 @@ set(PROJECT_UI
 set(PROJECT_HEADER
         memspeed.h
         speedmeasureworker.h
-        WindowsTimer.h
+
         data_buffer.h
 )
 
@@ -37,6 +37,7 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         ${PROJECT_UI}
         ${PROJECT_HEADER}
         ${PROJECT_SOURCES}
+        std_timer.h
     )
 # Define target properties for Android with Qt 6 as:
 #    set_property(TARGET MemSpeedTest APPEND PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR

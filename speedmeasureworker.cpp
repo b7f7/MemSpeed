@@ -1,5 +1,6 @@
 #include "speedmeasureworker.h"
-#include "WindowsTimer.h"
+#include "std_timer.h"
+//#include "WindowsTimer.h"
 #include "data_buffer.h"
 
 SpeedMeasureWorker::SpeedMeasureWorker(QObject *parent)
@@ -15,7 +16,7 @@ void SpeedMeasureWorker::run()
     point_list maxSeries;
     point_list medianSeries;
 
-    WindowsTimer t;
+    StdTimer t;
     const size_t height = 1000;
     for (size_t width = m_StartVal; width <= m_EndVal && ! m_CancelPreocessing; width += m_Increment)
     {
