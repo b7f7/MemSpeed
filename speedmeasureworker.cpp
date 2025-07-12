@@ -1,6 +1,5 @@
 #include "speedmeasureworker.h"
 #include "std_timer.h"
-//#include "WindowsTimer.h"
 #include "data_buffer.h"
 
 SpeedMeasureWorker::SpeedMeasureWorker(QObject *parent)
