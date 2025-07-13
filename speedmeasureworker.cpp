@@ -30,7 +30,8 @@ void SpeedMeasureWorker::run()
             std::vector<uint8_t*> b_rows = b.rows();
             std::vector<uint8_t*> c_rows = c.rows();
             std::vector<double> times;
-            for( size_t sample = 0; sample < 5  && ! m_CancelPreocessing; ++sample)
+            const size_t samples = 13;
+            for( size_t sample = 0; sample < samples  && ! m_CancelPreocessing; ++sample)
             {
                 double time_s = 0.0;
                 const size_t loopCount = 100;
@@ -45,12 +46,12 @@ void SpeedMeasureWorker::run()
                 time_s /= loopCount;
                 times.push_back(time_s);
             }
-            if( times.size() == 5)
+            if( times.size() == samples)
             {
                 std::sort(times.begin(), times.end());
-                minSeries.append(QPointF(width, (width / 1024.0 / 1024.0 / 1024.0) /times[0]));
-                medianSeries.append(QPointF(width, (width / 1024.0 / 1024.0 / 1024.0) /times[2]));
-                maxSeries.append(QPointF(width, (width / 1024.0 / 1024.0 / 1024.0) /times[4]));
+                minSeries.append(QPointF(width, (width / 1024.0 / 1024.0 / 1024.0) /times[samples-1]));
+                medianSeries.append(QPointF(width, (width / 1024.0 / 1024.0 / 1024.0) /times[samples/2]));
+                maxSeries.append(QPointF(width, (width / 1024.0 / 1024.0 / 1024.0) /times[0]));
             }
         }
         catch (...)
@@ -99,13 +100,17 @@ void SpeedMeasureWorker::Cancel()
 QChart* SpeedMeasureWorker::ToChart() const
 {
     QChart* chart = new QChart();
+
     QLineSeries* minSeries = new QLineSeries();
+    minSeries->setName("Min");
     minSeries->append(m_MinSeries);
 
     QLineSeries* maxSeries = new QLineSeries();
+    maxSeries->setName("Max");
     maxSeries->append(m_MaxSeries);
 
     QLineSeries* medianSeries = new QLineSeries();
+    medianSeries->setName("Median");
     medianSeries->append(m_MedianSeries);
 
     chart->addSeries( minSeries);
@@ -145,10 +150,15 @@ QChart* SpeedMeasureWorker::ToChart() const
     chart->addAxis(axisY3, Qt::AlignRight);
 
     auto axisX = new QValueAxis;
-    axisX->setTickCount(1024);
+    axisX->setTickAnchor(0);
+    axisX->setTickInterval(1024);
+    axisX->setGridLinePen(QColor("black"));
     chart->addAxis(axisX, Qt::AlignBottom);
+
     auto axisY = new QValueAxis;
-    axisX->setTickCount(5);
+    axisY->setTitleText("througput in GB/s");
+    axisY->setTickAnchor(0);
+    axisY->setTickInterval(5);
     chart->addAxis(axisY, Qt::AlignLeft);
 
     minSeries->attachAxis(axisX);
@@ -163,5 +173,22 @@ QChart* SpeedMeasureWorker::ToChart() const
     medianSeries->attachAxis(axisY);
     medianSeries->attachAxis(axisY3);
 
+    double min_y = m_MinSeries[0].y();
+    for(const auto& v : m_MinSeries)
+    {
+        if( v.y() < min_y)
+        {
+            min_y = v.y();
+        }
+    }
+    double max_y = m_MaxSeries[0].y();
+    for(const auto& v : m_MaxSeries)
+    {
+        if( v.y() > max_y)
+        {
+            max_y = v.y();
+        }
+    }
+    axisY->setRange(min_y, max_y);
     return chart;
 }

@@ -103,7 +103,7 @@
           <item>
            <widget class="QSpinBox" name="IncrementValue">
             <property name="minimum">
-             <number>32</number>
+             <number>8</number>
             </property>
             <property name="maximum">
              <number>4096</number>
@@ -114,6 +114,43 @@
             <property name="value">
              <number>32</number>
             </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <layout class="QVBoxLayout" name="AlgorithmLayout">
+          <item>
+           <widget class="QLabel" name="label_4">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="text">
+             <string>Algorithm</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QComboBox" name="AlgorithmSelector">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <item>
+             <property name="text">
+              <string>Random</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Sequencial</string>
+             </property>
+            </item>
            </widget>
           </item>
          </layout>

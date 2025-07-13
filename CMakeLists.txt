@@ -76,7 +76,7 @@ target_link_libraries(MemSpeedTest
 # If you are developing for iOS or macOS you should consider setting an
 # explicit, fixed bundle identifier manually though.
 if(${QT_VERSION} VERSION_LESS 6.1.0)
-  set(BUNDLE_ID_OPTION MACOSX_BUNDLE_GUI_IDENTIFIER com.example.MemSpeedTest)
+  set(BUNDLE_ID_OPTION MACOSX_BUNDLE_GUI_IDENTIFIER com.b7f7.MemSpeedTest)
 endif()
 set_target_properties(MemSpeedTest PROPERTIES
     ${BUNDLE_ID_OPTION}
@@ -92,6 +92,12 @@ install(TARGETS MemSpeedTest
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
 )
+qt_generate_deploy_app_script(
+    TARGET MemSpeedTest
+    OUTPUT_SCRIPT deploy_script
+    NO_UNSUPPORTED_PLATFORM_ERROR
+)
+install(SCRIPT ${deploy_script})
 
 if(QT_VERSION_MAJOR EQUAL 6)
     qt_finalize_executable(MemSpeedTest)
