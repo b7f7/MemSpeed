@@ -32,8 +32,20 @@ void MemSpeed::on_StartButton_clicked()
         ui->progressBar->reset();
         ui->progressBar->setMinimum(StartValue);
         ui->progressBar->setMaximum(EndValue);
+        TestMode testMode;
+        switch( ui->AlgorithmSelector->currentIndex())
+        {
+        case 0:
+            testMode = ERandom;
+            break;
+        case 1:
+            testMode = ESequencial;
+            break;
+        default:
+            throw std::logic_error("unknown algorithm selected");
+        }
 
-        m_Worker->Start(StartValue, EndValue, ui->IncrementValue->value());
+        m_Worker->Start(StartValue, EndValue, ui->IncrementValue->value(),testMode);
 
     }
     else if( ui->StartButton->text() == "Cancel")
@@ -49,6 +61,7 @@ void MemSpeed::on_ChartReady()
     m_ChartView->setChart(m_Worker->ToChart());
     m_Worker->Cancel();
     ui->StartButton->setText("Start");
+    ui->actionSave_As_Image->setEnabled(true);
 
 }
 
@@ -64,5 +77,12 @@ void MemSpeed::on_StartSizeValue_editingFinished()
     auto v = ui->StartSizeValue->value() + ui->StartSizeValue->singleStep();
     ui->EndSizeValue->setMinimum(v);
 
+}
+
+
+void MemSpeed::on_actionSave_As_Image_triggered()
+{
+    QString fileName = QFileDialog::getSaveFileName(this,"Save Image", "", "Image Files (*.png *.jpg *.bmp");
+    m_ChartView->grab().save(fileName);
 }
 

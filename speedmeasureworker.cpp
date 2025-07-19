@@ -2,6 +2,8 @@
 #include "std_timer.h"
 #include "data_buffer.h"
 
+#include <algorithm>
+
 SpeedMeasureWorker::SpeedMeasureWorker(QObject *parent)
     : QObject{parent}
 {}
@@ -15,15 +17,22 @@ void SpeedMeasureWorker::run()
     point_list maxSeries;
     point_list medianSeries;
 
+    const uint32_t startValue = m_StartValue;
+    const uint32_t endValue = m_EndValue;
+    const uint32_t increment = m_Increment;
+    const TestMode testMode = m_TestMode;
+
     StdTimer t;
-    const size_t height = 1000;
-    for (size_t width = m_StartVal; width <= m_EndVal && ! m_CancelPreocessing; width += m_Increment)
+
+    const uint64_t bufferSize = 1024ull*1024ull * 16ull;
+    for (size_t width = startValue; width <= endValue && ! m_CancelPreocessing; width += increment)
     {
         emit(SetProgress(width));
 
         try
         {
 
+            const size_t height = bufferSize / width;
             buffer b(width, height);
             buffer c(width, height);
 
@@ -34,10 +43,22 @@ void SpeedMeasureWorker::run()
             for( size_t sample = 0; sample < samples  && ! m_CancelPreocessing; ++sample)
             {
                 double time_s = 0.0;
-                const size_t loopCount = 100;
+                const size_t loopCount = std::min<size_t>(100,height);
                 for (size_t pos = 0; pos < loopCount  && ! m_CancelPreocessing; ++pos)
                 {
-                    size_t line = rand() % height;
+                    size_t line;
+                    switch(testMode)
+                    {
+                    case ESequencial:
+                        line = pos;
+                        break;
+                    case ERandom:
+                        line = rand() % height;
+                        break;
+                    default:
+                        throw std::logic_error("unknown test mode used");
+                        break;
+                    }
                     t.Start();
                     memmove(c_rows[line], b_rows[line], width);
                     time_s += t.GetTime();
@@ -65,16 +86,17 @@ void SpeedMeasureWorker::run()
     emit(Ready());
 }
 
-void SpeedMeasureWorker::Start( uint32_t StartVal, uint32_t EndVal, uint32_t Increment)
+void SpeedMeasureWorker::Start( uint32_t StartVal, uint32_t EndVal, uint32_t Increment, TestMode testMode)
 {
     Cancel();
     bool expected {false};
     if (m_IsRunning.compare_exchange_strong(expected, true) )
     {
 
-        m_StartVal = StartVal;
-        m_EndVal = EndVal;
+        m_StartValue = StartVal;
+        m_EndValue = EndVal;
         m_Increment = Increment;
+        m_TestMode = testMode;
 
         if( m_ProcessingThread.joinable())
         {
@@ -176,7 +198,7 @@ QChart* SpeedMeasureWorker::ToChart() const
     double min_y = m_MinSeries[0].y();
     for(const auto& v : m_MinSeries)
     {
-        if( v.y() < min_y)
+        if(std::isfinite(v.y()) &&( v.y() < min_y))
         {
             min_y = v.y();
         }
@@ -184,7 +206,7 @@ QChart* SpeedMeasureWorker::ToChart() const
     double max_y = m_MaxSeries[0].y();
     for(const auto& v : m_MaxSeries)
     {
-        if( v.y() > max_y)
+        if( std::isfinite(v.y()) && ( v.y() > max_y))
         {
             max_y = v.y();
         }

@@ -27,6 +27,8 @@ private slots:
 
     void on_StartSizeValue_editingFinished();
 
+    void on_actionSave_As_Image_triggered();
+
 private:
     Ui::MemSpeed *ui;
     QChartView* m_ChartView {nullptr};

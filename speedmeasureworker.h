@@ -10,6 +10,13 @@
 
 #include <atomic>
 #include <thread>
+
+enum TestMode
+{
+    ESequencial,
+    ERandom,
+};
+
 class SpeedMeasureWorker : public QObject
 {
     Q_OBJECT
@@ -18,7 +25,7 @@ public:
 
     explicit SpeedMeasureWorker(QObject *parent = nullptr);
     ~SpeedMeasureWorker();
-    void Start( uint32_t StartVal, uint32_t EndVal, uint32_t Increment);
+    void Start( uint32_t StartVal, uint32_t EndVal, uint32_t Increment, TestMode testMode);
     void Cancel();
 
     QChart* ToChart() const;
@@ -26,9 +33,11 @@ signals:
     void Ready();
     void SetProgress(int);
 private:
-    uint32_t m_StartVal;
-    uint32_t m_EndVal;
+    uint32_t m_StartValue;
+    uint32_t m_EndValue;
     uint32_t m_Increment;
+    TestMode m_TestMode;
+
     point_list m_MinSeries;
     point_list m_MaxSeries;
     point_list m_MedianSeries;
